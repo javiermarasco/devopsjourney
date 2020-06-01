@@ -1,9 +1,8 @@
 param (
-        [switch]$management,
         [string]$ResourceGroupName,
         [string]$SubscriptionId
     )
-    
+
 Login-AzAccount
 
 Select-AzSubscription -subscriptionid $SubscriptionId
