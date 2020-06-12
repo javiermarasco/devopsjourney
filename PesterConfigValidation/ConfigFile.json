@@ -1,0 +1,11 @@
+[
+    {
+        "Name": "testwebappdemopester",
+        "Values": [
+            {
+                "keyexample1":"2233445566",
+                "ResourceValue":"AABBCCDDEEE"
+            }
+        ]
+    }
+]
