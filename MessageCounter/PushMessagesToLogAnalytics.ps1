@@ -1,3 +1,15 @@
+$Subscription = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"   # Subscription Id where the resources are deployed.
+$TenantId = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"       # Tenant where you have your subscription
+
+$client_id = 'XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX'      # Application ID of the SPN created to run the script
+$client_secret = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'  # Secret of the SPN created
+
+
+$WorkspaceId = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"    # Workspace ID of the Log Analytics
+$SharedKey = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"    # Replace with your Primary Key from your Log Analytics
+
+$LogType = "ServiceBusMessageCount" # Specify the name of the table record type that you'll be creating in your Log Analytics
+
 $ResourceGroupName = "servicebuscounts"
 $ServiceBusName = "countertester"
 
@@ -58,9 +70,7 @@ Function PostLogAnalyticsData($WorkspaceId, $sharedKey, $body, $logType){
     }
     $response = Invoke-RestMethod -Uri $uri -Method $method -ContentType $contentType -Headers $headers -Body $body
     return $response.StatusCode
-
 }
-get-date    
 $Header = GetAzureAuthHeader
 $ServiceBusTopicQueryURL = "https://management.azure.com//subscriptions/$Subscription/resourceGroups/$ResourceGroupName/providers/Microsoft.ServiceBus/namespaces/$ServiceBusName/topics?api-version=2017-04-01"
 $ServiceBusTopics = $(Invoke-RestMethod -Uri $ServiceBusTopicQueryURL -Headers $Header -Method Get  -ErrorAction Stop)
@@ -68,8 +78,6 @@ foreach ($Topic in $ServiceBusTopics.value.name) {
     $ServiceBusSubscriptionQueryURL = "https://management.azure.com//subscriptions/$Subscription/resourceGroups/$ResourceGroupName/providers/Microsoft.ServiceBus/namespaces/$ServiceBusName/topics/$Topic/subscriptions?api-version=2017-04-01"
     $ServiceBusSubscriptions = $(Invoke-RestMethod -Uri $ServiceBusSubscriptionQueryURL -Headers $Header -Method Get  -ErrorAction Stop)
     foreach ($ServiceBusSubscription in $ServiceBusSubscriptions.value) {
-        #$ActiveMessages = $ServiceBusSubscription.properties.countDetails.activeMessageCount
-        #$DLQMessages = $ServiceBusSubscription.properties.countDetails.deadLetterMessageCount
         $jsonActive = @{
             "ServiceBusTopicName" = $Topic
             "ServiceBusSubscriptionName" = $ServiceBusSubscription.name
@@ -88,6 +96,3 @@ foreach ($Topic in $ServiceBusTopics.value.name) {
         PostLogAnalyticsData -WorkspaceId $WorkspaceId -sharedKey $sharedKey -body ([System.Text.Encoding]::UTF8.GetBytes($json)) -logType $logType
     }
 }
-
-get-date
-
